@@ -83,7 +83,7 @@ public class TicketDAO {
             while (rs.next()) {
                 ticket = new Ticket();
                 ticket.setVehicleRegNumber(vehicleRegNumber);
-                ticket.setOutTime(rs.getTimestamp(5));
+                ticket.setOutTime(rs.getTimestamp(2));
                 list.add(ticket);
             }
             dataBaseConfig.closeResultSet(rs);

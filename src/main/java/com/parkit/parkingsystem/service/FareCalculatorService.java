@@ -22,10 +22,9 @@ public class FareCalculatorService {
         TicketDAO ticketDao = new TicketDAO();
         String regNumber = ticket.getVehicleRegNumber();
         List<Ticket> allTicket = ticketDao.getAllTicketByRegNumber(regNumber);
-        System.out.println("Print: " + allTicket.size() + " :Print");
 
-        if (allTicket.size() >= 2)
-            promotion = 0.5;
+        if (allTicket.size() >= 2 && allTicket.get(1).getOutTime() != null)
+            promotion = 0.05;
 
         if (duration <= 1800000) {
             ticket.setPrice(0);
