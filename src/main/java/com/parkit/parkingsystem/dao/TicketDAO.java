@@ -12,6 +12,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TicketDAO {
 
@@ -68,7 +70,31 @@ public class TicketDAO {
             return ticket;
         }
     }
-
+    public List<Ticket> getAllTicketByRegNumber(String vehicleRegNumber) {
+        Connection con = null;
+        List<Ticket> list = new ArrayList<Ticket>();
+        Ticket ticket = null;
+        try {
+            con = dataBaseConfig.getConnection();
+            PreparedStatement ps = con.prepareStatement(DBConstants.GET_ALL_TICKET);
+            // PARKING_NUMBER
+            ps.setString(1,vehicleRegNumber);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                ticket = new Ticket();
+                ticket.setVehicleRegNumber(vehicleRegNumber);
+                ticket.setOutTime(rs.getTimestamp(5));
+                list.add(ticket);
+            }
+            dataBaseConfig.closeResultSet(rs);
+            dataBaseConfig.closePreparedStatement(ps);
+        }catch (Exception ex){
+            logger.error("Error fetching next available slot",ex);
+        }finally {
+            dataBaseConfig.closeConnection(con);
+        }
+        return list;
+    }
     public boolean updateTicket(Ticket ticket) {
         Connection con = null;
         try {
