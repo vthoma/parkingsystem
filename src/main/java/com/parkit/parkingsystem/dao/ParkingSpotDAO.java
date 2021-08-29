@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class ParkingSpotDAO {
     private static final Logger logger = LogManager.getLogger("ParkingSpotDAO");
@@ -29,7 +30,7 @@ public class ParkingSpotDAO {
             }
             dataBaseConfig.closeResultSet(rs);
             dataBaseConfig.closePreparedStatement(ps);
-        }catch (Exception ex){
+        }catch (ClassNotFoundException | SQLException ex){
             logger.error("Error fetching next available slot",ex);
         }finally {
             dataBaseConfig.closeConnection(con);
@@ -40,19 +41,34 @@ public class ParkingSpotDAO {
     public boolean updateParking(ParkingSpot parkingSpot){
         //update the availability fo that parking slot
         Connection con = null;
+        PreparedStatement ps = null;
         try {
             con = dataBaseConfig.getConnection();
-            PreparedStatement ps = con.prepareStatement(DBConstants.UPDATE_PARKING_SPOT);
+            ps = con.prepareStatement(DBConstants.UPDATE_PARKING_SPOT);
             ps.setBoolean(1, parkingSpot.isAvailable());
             ps.setInt(2, parkingSpot.getId());
             int updateRowCount = ps.executeUpdate();
             dataBaseConfig.closePreparedStatement(ps);
+            con.close();
             return (updateRowCount == 1);
-        }catch (Exception ex){
+        }catch (ClassNotFoundException | SQLException ex){
             logger.error("Error updating parking info",ex);
             return false;
-        }finally {
-            dataBaseConfig.closeConnection(con);
+        } finally {
+            try {
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch (Exception ex) {
+                logger.error("Error PreparedStatement statue ", ex);
+            }
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (Exception ex) {
+                logger.error("Error con", ex);
+            }
         }
     }
 
